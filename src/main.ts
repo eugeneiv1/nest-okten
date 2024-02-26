@@ -2,11 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './modules/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { SwaggerHelper } from './common/helpers/swagger.helper';
+import { ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
+import { AppConfig } from './configs/config.type';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = new DocumentBuilder()
-
     .setTitle('nest-okten')
     .setDescription('API description')
     .setVersion('1.0.0')
@@ -26,6 +28,12 @@ async function bootstrap() {
       persistAuthorization: true,
     },
   });
-  await app.listen(3000);
+  const configService = app.get(ConfigService);
+  const appConfig = configService.get<AppConfig>('app');
+  await app.listen(appConfig.port, () => {
+    const url = `http://${appConfig.host}:${appConfig.port}`;
+    Logger.log(`Server is running: ${url}`);
+    Logger.log(`Swagger is running on: ${url}/docs`);
+  });
 }
 bootstrap();
