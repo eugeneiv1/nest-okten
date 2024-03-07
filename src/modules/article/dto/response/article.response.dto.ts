@@ -8,4 +8,5 @@ export class ArticleResponseDto {
   created: Date;
   updated: Date;
   user?: UserResponseDto;
+  isLiked: boolean;
 }
