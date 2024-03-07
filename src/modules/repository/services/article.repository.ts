@@ -18,12 +18,26 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     const qb = this.createQueryBuilder('article');
     qb.setParameter('myId', userData.userId);
     qb.leftJoinAndSelect('article.likes', 'like', 'like.user_id = :myId');
+    qb.leftJoinAndSelect('article.tags', 'tag');
     qb.leftJoinAndSelect('article.user', 'user');
     qb.leftJoinAndSelect(
       'user.followings',
       'follow',
       'follow.follower_id = :myId',
     );
+
+    if (query.tag) {
+      qb.andWhere('tag.name = :tag');
+      qb.setParameter('tag', query.tag);
+    }
+
+    if (query.search) {
+      qb.andWhere(
+        'CONCAT(LOWER(article.title), LOWER(article.description)) LIKE :search',
+      );
+      qb.setParameter('search', `%${query.search}%`);
+    }
+
     qb.addOrderBy('article.created', 'DESC');
     qb.take(query.limit);
     qb.skip(query.offset);
@@ -35,13 +49,14 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     userData: IUserData,
   ): Promise<ArticleEntity> {
     const qb = this.createQueryBuilder('article');
+    qb.setParameter('myId', userData.userId);
     qb.leftJoinAndSelect('article.likes', 'like', 'like.user_id = :myId');
+    qb.leftJoinAndSelect('article.tags', 'tag');
     qb.leftJoinAndSelect('article.user', 'user');
     qb.leftJoinAndSelect(
       'user.followings',
       'follow',
       'follow.follower_id = :myId',
-      { myId: userData.userId },
     );
     qb.where('article.id = :articleId', { articleId });
 

@@ -9,4 +9,5 @@ export class ArticleResponseDto {
   updated: Date;
   user?: UserResponseDto;
   isLiked: boolean;
+  tags: string[];
 }
