@@ -10,4 +10,5 @@ export class ArticleResponseDto {
   user?: UserResponseDto;
   isLiked: boolean;
   tags: string[];
+  comments: string[];
 }

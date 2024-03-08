@@ -15,6 +15,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { IUserData } from '../auth/interfaces/user-data.interface';
+import { CommentRequestDto } from '../comment/models/dto/comment.request.dto';
 import { ArticleListRequestDto } from './dto/request/article-list.request.dto';
 import { CreateArticleRequestDto } from './dto/request/create-article.request.dto';
 import { EditArticleRequestDto } from './dto/request/edit-article.request.dto';
@@ -86,5 +87,23 @@ export class ArticleController {
     @CurrentUser() userData: IUserData,
   ): Promise<void> {
     await this.articleService.dislike(articleId, userData);
+  }
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post(':articleId/comment')
+  public async addComment(
+    @Param('articleId', ParseUUIDPipe) articleId: string,
+    @Body() commentBody: CommentRequestDto,
+    @CurrentUser() userData: IUserData,
+  ): Promise<void> {
+    await this.articleService.addComment(articleId, commentBody, userData);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':articleId/comment/:commentId')
+  public async deleteComment(
+    @Param('articleId', ParseUUIDPipe) articleId: string,
+    @Param('commentId', ParseUUIDPipe) commentId: string,
+  ): Promise<void> {
+    await this.articleService.deleteComment(articleId, commentId);
   }
 }

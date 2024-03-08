@@ -20,6 +20,7 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     qb.leftJoinAndSelect('article.likes', 'like', 'like.user_id = :myId');
     qb.leftJoinAndSelect('article.tags', 'tag');
     qb.leftJoinAndSelect('article.user', 'user');
+    qb.leftJoinAndSelect('article.comments', 'comment');
     qb.leftJoinAndSelect(
       'user.followings',
       'follow',
@@ -53,6 +54,7 @@ export class ArticleRepository extends Repository<ArticleEntity> {
     qb.leftJoinAndSelect('article.likes', 'like', 'like.user_id = :myId');
     qb.leftJoinAndSelect('article.tags', 'tag');
     qb.leftJoinAndSelect('article.user', 'user');
+    qb.leftJoinAndSelect('article.comments', 'comment');
     qb.leftJoinAndSelect(
       'user.followings',
       'follow',

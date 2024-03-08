@@ -8,7 +8,9 @@ import { In } from 'typeorm';
 import { ArticleEntity } from '../../../database/entities/article.entity';
 import { TagEntity } from '../../../database/entities/tag.entity';
 import { IUserData } from '../../auth/interfaces/user-data.interface';
+import { CommentRequestDto } from '../../comment/models/dto/comment.request.dto';
 import { ArticleRepository } from '../../repository/services/article.repository';
+import { CommentRepository } from '../../repository/services/comment.repository';
 import { LikeRepository } from '../../repository/services/like.repository';
 import { TagRepository } from '../../repository/services/tag.repository';
 import { ArticleListRequestDto } from '../dto/request/article-list.request.dto';
@@ -24,6 +26,7 @@ export class ArticleService {
     private readonly likeRepository: LikeRepository,
     private readonly articleRepository: ArticleRepository,
     private readonly tagRepository: TagRepository,
+    private readonly commentRepository: CommentRepository,
   ) {}
 
   public async getList(
@@ -138,6 +141,48 @@ export class ArticleService {
     }
 
     await this.likeRepository.remove(like);
+  }
+
+  public async addComment(
+    articleId: string,
+    commentBody: CommentRequestDto,
+    userData: IUserData,
+  ): Promise<void> {
+    const article = await this.articleRepository.findOneBy({ id: articleId });
+
+    if (!article) {
+      throw new ForbiddenException(`Article doesn't exist`);
+    }
+
+    await this.commentRepository.save(
+      this.commentRepository.create({
+        body: commentBody.body,
+        user_id: userData.userId,
+        article_id: article.id,
+      }),
+    );
+  }
+
+  public async deleteComment(
+    articleId: string,
+    commentId: string,
+  ): Promise<void> {
+    const article = await this.articleRepository.findOneBy({ id: articleId });
+
+    if (!article) {
+      throw new ForbiddenException(`Article doesn't exist`);
+    }
+
+    const comment = await this.commentRepository.findOneBy({
+      id: commentId,
+      article_id: article.id,
+    });
+
+    if (!comment) {
+      throw new ForbiddenException(`Comment doesn't exist`);
+    }
+
+    await this.commentRepository.remove(comment);
   }
 
   private async findMyOneByIdOrThrow(
